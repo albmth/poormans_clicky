@@ -5,7 +5,6 @@
 //  Manages the NSStatusItem (menu bar icon) and a custom borderless NSPanel
 //  that drops down below it when clicked. The panel hosts a SwiftUI view
 //  (CompanionPanelView) via NSHostingView. Uses the same NSPanel pattern as
-//  FloatingSessionButton and GlobalPushToTalkOverlay for consistency.
 //
 //  The panel is non-activating so it does not steal focus from the user's
 //  current app, and auto-dismisses when the user clicks outside.
@@ -32,8 +31,8 @@ final class MenuBarPanelManager: NSObject {
     private var dismissPanelObserver: NSObjectProtocol?
 
     private let companionManager: CompanionManager
-    private let panelWidth: CGFloat = 320
-    private let panelHeight: CGFloat = 380
+    private let panelWidth: CGFloat = 380
+    private let panelHeight: CGFloat = 560
 
     init(companionManager: CompanionManager) {
         self.companionManager = companionManager
@@ -45,7 +44,9 @@ final class MenuBarPanelManager: NSObject {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.hidePanel()
+            Task { @MainActor [weak self] in
+                self?.hidePanel()
+            }
         }
     }
 
@@ -200,7 +201,7 @@ final class MenuBarPanelManager: NSObject {
     // MARK: - Click Outside Dismissal
 
     /// Installs a global event monitor that hides the panel when the user clicks
-    /// anywhere outside it — the same transient dismissal behavior as NSPopover.
+    /// anywhere outside it - the same transient dismissal behavior as NSPopover.
     /// Uses a short delay so that system permission dialogs (triggered by Grant
     /// buttons in the panel) don't immediately dismiss the panel when they appear.
     private func installClickOutsideMonitor() {
@@ -211,23 +212,17 @@ final class MenuBarPanelManager: NSObject {
         ) { [weak self] event in
             guard let self, let panel = self.panel else { return }
 
-            // Check if the click is inside the status item button — if so, the
+            // Check if the click is inside the status item button - if so, the
             // statusItemClicked handler will toggle the panel, so don't also hide.
             let clickLocation = NSEvent.mouseLocation
             if panel.frame.contains(clickLocation) {
                 return
             }
 
-            // Delay dismissal slightly to avoid closing the panel when
-            // a system permission dialog appears (e.g. microphone access).
+            // Delay dismissal slightly so a click on the status item can finish
+            // its own toggle behavior before the global monitor runs.
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 guard panel.isVisible else { return }
-
-                // If permissions aren't all granted yet, a system dialog
-                // may have focus — don't dismiss during onboarding.
-                if !self.companionManager.allPermissionsGranted && !NSApp.isActive {
-                    return
-                }
 
                 self.hidePanel()
             }

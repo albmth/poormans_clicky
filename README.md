@@ -56,10 +56,30 @@ In other words: this project should become a user-controlled desktop tool, not a
 
 ## Current status
 
-This fork is early-stage.
+The active app is now a menu bar-only typed assistant panel backed by the user's installed Codex CLI.
+It keeps a local live screen overlay drawing engine for visual annotations.
+It captures screenshots locally per prompt and passes those temporary image files to Codex CLI.
+It no longer includes the inherited voice input, transcription, TTS, hosted provider clients, Cloudflare Worker proxy, analytics, email capture, onboarding video, Sparkle updater, or provider API-key paths.
 
-The codebase still contains inherited Clicky structure, naming, and implementation details.
-Part of the roadmap is to gradually replace inherited branding, remove unnecessary API dependencies, simplify the architecture, and turn this into a distinct product.
+The default assistant backend runs Codex in read-only one-shot mode:
+
+```bash
+codex exec --sandbox read-only --skip-git-repo-check --ephemeral --color never --cd <working-dir> [--image <screen.png>...] -
+```
+
+Prompt text is passed through stdin.
+Screen images are written to a per-request temporary directory and deleted after the Codex process exits.
+The app does not read Codex auth files, browser data, keychain items, API keys, or provider configs.
+Screen Recording permission is required before Codex can receive screenshots.
+
+Codex can draw on screen by appending overlay commands to its response:
+
+```text
+[POINT:x,y:label:screenN]
+[RECT:x,y,width,height:label:screenN]
+[LINE:x1,y1,x2,y2:label:screenN]
+[CLEAR]
+```
 
 ## Development setup
 
@@ -67,4 +87,7 @@ Open the project in Xcode:
 
 ```bash
 open leanring-buddy.xcodeproj
+```
 
+Select the `leanring-buddy` scheme, set your signing team, and run from Xcode.
+Do not run `xcodebuild` from the terminal for this project.
