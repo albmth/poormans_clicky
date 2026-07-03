@@ -1,162 +1,70 @@
-Update: April 27, 2026.
+# Poor Man's Clicky
 
-Hi there! I'm Farza, the guy that made Clicky.
+Poor Man's Clicky is an independent fork of [Clicky](https://github.com/farzaa/clicky) by Farza.
 
-The existing codebase remains open source. Tinker with it, make it yours, start a company out of it, do whatever you want I don't mind. But, for all the new stuff I'm hacking on, gonna keep it private. To get the latest Clicky, you can go [here](https://www.heyclicky.com/).
+This repository began as a clone of the open-source Clicky codebase.
+The goal is to openly preserve attribution while evolving the project into a separate product with its own roadmap, branding, architecture, and commercial direction.
 
-I also tweeted about this [here](https://x.com/FarzaTV/status/2043402737828962489).
+This is not the official Clicky project.
+It is not affiliated with Farza, Clicky, OpenAI, Anthropic, or any other AI provider.
 
-Go crazy with this repo!! It's an MIT license.
+## Why this fork exists
 
-# Hi, this is Clicky.
-It's an AI teacher that lives as a buddy next to your cursor. It can see your screen, talk to you, and even point at stuff. Kinda like having a real teacher next to you.
+The original Clicky project is an AI buddy that lives near your cursor and can help with screen-aware interactions.
 
-Download it [here](https://www.clicky.so/) for free.
+Poor Man's Clicky explores a different direction:
 
-Here's the [original tweet](https://x.com/FarzaTV/status/2041314633978659092) that kinda blew up for a demo for more context.
+- Remove hard dependency on hosted AI API calls.
+- Prefer local user-controlled sessions where possible.
+- Build a desktop controller that can work with the user's own tools, accounts, browser profiles, or CLI workflows.
+- Keep the project hackable, understandable, and product-ready.
+- Eventually evolve into a separately branded app that can be packaged, distributed, and sold.
 
-![Clicky — an ai buddy that lives on your mac](clicky-demo.gif)
+## Attribution
 
-This is the open-source version of Clicky for those that want to hack on it, build their own features, or just see how it works under the hood.
+This project is derived from:
 
-## Get started with Claude Code
+- Original project: https://github.com/farzaa/clicky
+- Original author: Farza
+- Original license: MIT License
 
-The fastest way to get this running is with [Claude Code](https://docs.anthropic.com/en/docs/claude-code).
+The original Clicky license is preserved in this repository.
+Any substantial portions of the original Clicky source remain subject to the original MIT License notice.
 
-Once you get Claude running, paste this:
+## License and commercial use
 
-```
-Hi Claude.
+The upstream Clicky project is released under the MIT License.
 
-Clone https://github.com/farzaa/clicky.git into my current directory.
+The MIT License allows use, copying, modification, publishing, distribution, sublicensing, and sale of the software, provided that the original copyright notice and permission notice are included in all copies or substantial portions of the software.
 
-Then read the CLAUDE.md. I want to get Clicky running locally on my Mac.
+This fork may be developed into a commercial product.
+Commercialization does not remove the obligation to preserve the original MIT License notice for code derived from Clicky.
 
-Help me set up everything — the Cloudflare Worker with my own API keys, the proxy URLs, and getting it building in Xcode. Walk me through it.
-```
+## Product direction
 
-That's it. It'll clone the repo, read the docs, and walk you through the whole setup. Once you're running you can just keep talking to it — build features, fix bugs, whatever. Go crazy.
+The intended direction for this fork is:
 
-## Manual setup
+- Local-first desktop control.
+- User-owned accounts and sessions.
+- No bundled provider API keys.
+- No shared or resold access to third-party AI services.
+- No hidden credential extraction.
+- No bypassing provider limits, restrictions, or terms.
+- Clear separation between this project and the services it may help the user control locally.
 
-If you want to do it yourself, here's the deal.
+In other words: this project should become a user-controlled desktop tool, not a proxy for reselling or bypassing access to another company's service.
 
-### Prerequisites
+## Current status
 
-- macOS 14.2+ (for ScreenCaptureKit)
-- Xcode 15+
-- Node.js 18+ (for the Cloudflare Worker)
-- A [Cloudflare](https://cloudflare.com) account (free tier works)
-- API keys for: [Anthropic](https://console.anthropic.com), [AssemblyAI](https://www.assemblyai.com), [ElevenLabs](https://elevenlabs.io)
+This fork is early-stage.
 
-### 1. Set up the Cloudflare Worker
+The codebase still contains inherited Clicky structure, naming, and implementation details.
+Part of the roadmap is to gradually replace inherited branding, remove unnecessary API dependencies, simplify the architecture, and turn this into a distinct product.
 
-The Worker is a tiny proxy that holds your API keys. The app talks to the Worker, the Worker talks to the APIs. This way your keys never ship in the app binary.
+## Development setup
 
-```bash
-cd worker
-npm install
-```
-
-Now add your secrets. Wrangler will prompt you to paste each one:
-
-```bash
-npx wrangler secret put ANTHROPIC_API_KEY
-npx wrangler secret put ASSEMBLYAI_API_KEY
-npx wrangler secret put ELEVENLABS_API_KEY
-```
-
-For the ElevenLabs voice ID, open `wrangler.toml` and set it there (it's not sensitive):
-
-```toml
-[vars]
-ELEVENLABS_VOICE_ID = "your-voice-id-here"
-```
-
-Deploy it:
-
-```bash
-npx wrangler deploy
-```
-
-It'll give you a URL like `https://your-worker-name.your-subdomain.workers.dev`. Copy that.
-
-### 2. Run the Worker locally (for development)
-
-If you want to test changes to the Worker without deploying:
-
-```bash
-cd worker
-npx wrangler dev
-```
-
-This starts a local server (usually `http://localhost:8787`) that behaves exactly like the deployed Worker. You'll need to create a `.dev.vars` file in the `worker/` directory with your keys:
-
-```
-ANTHROPIC_API_KEY=sk-ant-...
-ASSEMBLYAI_API_KEY=...
-ELEVENLABS_API_KEY=...
-ELEVENLABS_VOICE_ID=...
-```
-
-Then update the proxy URLs in the Swift code to point to `http://localhost:8787` instead of the deployed Worker URL while developing. Grep for `clicky-proxy` to find them all.
-
-### 3. Update the proxy URLs in the app
-
-The app has the Worker URL hardcoded in a few places. Search for `your-worker-name.your-subdomain.workers.dev` and replace it with your Worker URL:
-
-```bash
-grep -r "clicky-proxy" leanring-buddy/
-```
-
-You'll find it in:
-- `CompanionManager.swift` — Claude chat + ElevenLabs TTS
-- `AssemblyAIStreamingTranscriptionProvider.swift` — AssemblyAI token endpoint
-
-### 4. Open in Xcode and run
+Open the project in Xcode:
 
 ```bash
 open leanring-buddy.xcodeproj
-```
 
-In Xcode:
-1. Select the `leanring-buddy` scheme (yes, the typo is intentional, long story)
-2. Set your signing team under Signing & Capabilities
-3. Hit **Cmd + R** to build and run
-
-The app will appear in your menu bar (not the dock). Click the icon to open the panel, grant the permissions it asks for, and you're good.
-
-### Permissions the app needs
-
-- **Microphone** — for push-to-talk voice capture
-- **Accessibility** — for the global keyboard shortcut (Control + Option)
-- **Screen Recording** — for taking screenshots when you use the hotkey
-- **Screen Content** — for ScreenCaptureKit access
-
-## Architecture
-
-If you want the full technical breakdown, read `CLAUDE.md`. But here's the short version:
-
-**Menu bar app** (no dock icon) with two `NSPanel` windows — one for the control panel dropdown, one for the full-screen transparent cursor overlay. Push-to-talk streams audio over a websocket to AssemblyAI, sends the transcript + screenshot to Claude via streaming SSE, and plays the response through ElevenLabs TTS. Claude can embed `[POINT:x,y:label:screenN]` tags in its responses to make the cursor fly to specific UI elements across multiple monitors. All three APIs are proxied through a Cloudflare Worker.
-
-## Project structure
-
-```
-leanring-buddy/          # Swift source (yes, the typo stays)
-  CompanionManager.swift    # Central state machine
-  CompanionPanelView.swift  # Menu bar panel UI
-  ClaudeAPI.swift           # Claude streaming client
-  ElevenLabsTTSClient.swift # Text-to-speech playback
-  OverlayWindow.swift       # Blue cursor overlay
-  AssemblyAI*.swift         # Real-time transcription
-  BuddyDictation*.swift     # Push-to-talk pipeline
-worker/                  # Cloudflare Worker proxy
-  src/index.ts              # Three routes: /chat, /tts, /transcribe-token
-CLAUDE.md                # Full architecture doc (agents read this)
-```
-
-## Contributing
-
-PRs welcome. If you're using Claude Code, it already knows the codebase — just tell it what you want to build and point it at `CLAUDE.md`.
-
-Got feedback? DM me on X [@farzatv](https://x.com/farzatv).
