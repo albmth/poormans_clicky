@@ -11,6 +11,7 @@ It is planning-only and does not authorize app code changes, file deletion, Xcod
 ## Migration Boundary
 
 Poor Man's Clicky is an independent fork derived from the open-source Clicky project by Farza.
+"Poor Man's Clicky" is a provisional working name; the final brand remains an open decision (see the roadmap Open Decisions).
 Preserve the original attribution and MIT license notices.
 Do not imply official affiliation with Clicky, Farza, OpenAI, Anthropic, Claude, Codex, or any other AI provider.
 

@@ -1,6 +1,7 @@
 # No-API CLI Roadmap
 
 This document is the execution roadmap for moving Poor Man's Clicky from the current API/provider/voice-backed app to a no-API local CLI-backed product.
+"Poor Man's Clicky" is a provisional working name; the final brand remains an open decision (see Open Decisions below).
 It is planning-only and does not authorize app code changes, file deletion, Xcode project changes, or commits.
 
 ## Related Docs
@@ -259,6 +260,6 @@ Keep the app buildable.
 Preserve attribution and license notices.
 Start by adding the AssistantBackend abstraction, DisabledBackend, and MockBackend if they do not already exist.
 Do not delete voice/API/provider files until CompanionManager is cut over to the abstraction and the mock path works.
-Use apply_patch for manual edits.
+Keep manual edits minimal and well-scoped to the phase.
 After the phase, report changed files, verification performed, and remaining blockers.
 ```
